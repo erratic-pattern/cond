@@ -4,8 +4,6 @@ module Control.Cond
          if', (??), bool
          -- * Lisp-style conditional operators 
        , cond, condPlus
-         -- * Higher-order conditional operator
-       , select
          -- * Lifted conditional and boolean operators
        , ifM, (<||>), (<&&>), notM, condM, condPlusM
        , guardM, whenM, unlessM 
@@ -13,6 +11,20 @@ module Control.Cond
        , (?.)
          -- * Conditional operatior on monoids
        , (?<>)
+         -- *Tony Hoare's conditional choice operator
+         -- |The following operators form a ternary conditional of the form
+         -- 
+         -- > t <| p |> f
+         --
+         -- These operators chain with right associative fixity. This allows 
+         -- chaining of conditions, where the result of the expression is 
+         -- the value to the left of the first predicate that succeeds.
+         -- 
+         -- For more information see 
+         -- <zenzike.com/posts/2011-08-01-the-conditional-choice-operator>
+       , (|>), (<|)
+         -- * Higher-order conditional operator
+       , select
        ) where
 
 import Control.Monad
@@ -20,6 +32,7 @@ import Control.Category
 import Data.Monoid
 import Prelude hiding ((.), id)
 
+infixr  0 <|, |>
 infix   1 ??
 infixr  2 <||>
 infixr  3 <&&>
@@ -28,19 +41,19 @@ infixr  9 ?.
 
 -- |A simple conditional function.
 if' :: Bool -> a -> a -> a
-if' p a b = if p then a else b
+if' p t f = if p then t else f
 {-# INLINE if' #-}
 
 -- |'if'' with the 'Bool' argument at the end (infix 1).
 (??) :: a -> a -> Bool -> a
-(??) a b p = if' p a b 
+(??) t f p = if' p t f 
 {-# INLINE (??) #-}
 
 -- |A catamorphism for the Bool type. This is analogous to foldr, maybe, and 
 -- either. The first argument is the false case, the second argument is the 
 -- true case, and the last argument is the predicate value.
 bool :: a -> a -> Bool -> a
-bool b a p = if' p a b
+bool f t p = if' p t f
 {-# INLINE bool #-}
 
 -- |Lisp-style conditionals. If no conditions match, then a runtime exception
@@ -75,26 +88,26 @@ p ?. c = if' p c id
 -- Note that after importing "Control.Monad.Instances", 'select' becomes a  
 -- special case of 'ifM'.
 select :: (a -> Bool) -> (a -> b) -> (a -> b) -> (a -> b)
-select p a b x = if' (p x) (a x) (b x)
+select p t f x = if' (p x) (t x) (f x)
 {-# INLINE select #-}
 
 -- |'if'' lifted to 'Monad'. Unlike 'liftM3' 'if'', this is  
 -- short-circuiting in the monad, such that only the predicate action and one of
 -- the remaining argument actions are executed.
 ifM :: Monad m => m Bool -> m a -> m a -> m a 
-ifM p a b = p >>= bool b a
+ifM p t f = p >>= bool f t
 {-# INLINE ifM #-}
 
 -- |Lifted boolean or. Unlike 'liftM2' ('||'), This function is short-circuiting
 -- in the monad. Fixity is the same as '||' (infixr 2).
 (<||>) :: Monad m => m Bool -> m Bool -> m Bool
-(<||>) a b = ifM a (return True) b
+(<||>) t f = ifM t (return True) f
 {-# INLINE (<||>) #-}
 
 -- |Lifted boolean and. Unlike 'liftM2' ('&&'), this function is 
 -- short-circuiting in the monad. Fixity is the same as '&&' (infxr 3).
 (<&&>) :: Monad m => m Bool -> m Bool -> m Bool
-(<&&>) a b = ifM a b (return False)
+(<&&>) t f = ifM t f (return False)
 {-# INLINE (<&&>) #-}
 
 -- |Lifted boolean negation.
@@ -139,3 +152,17 @@ guardM = (guard =<<)
 (?<>) :: Monoid a => Bool -> a -> a
 p ?<> m = if' p m mempty
 {-# INLINE (?<>) #-}
+ 
+
+-- |right bracket of the conditional choice operator. If the predicate,
+-- is 'False', returns 'Nothing', otherwise it returns 'Just' the right-hand
+-- argument.
+(|>) :: Bool -> a -> Maybe a
+True  |> _ = Nothing
+False |> f = Just f
+
+-- |left bracket of the conditional choice operator. This is equivalent to
+-- 'Data.Maybe.fromMaybe'
+(<|) :: a -> Maybe a -> a
+t <| Nothing = t
+_ <| Just f  = f
