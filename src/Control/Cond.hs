@@ -4,16 +4,13 @@ module Control.Cond
          if', (??), bool
          -- * Lisp-style conditional operators 
        , cond, condPlus
-         -- * Lifted conditional and boolean operators
-       , ifM, (<||>), (<&&>), notM, condM, condPlusM
-       , guardM, whenM, unlessM 
          -- * Conditional operator on categories
        , (?.)
          -- * Conditional operatior on monoids
        , (?<>)
          -- * Conditional operator on functions
        , select
-         -- * C-style ternary conditionals
+         -- * C-style ternary conditional
        , (?)
          -- *Tony Hoare's conditional choice operator
          -- |The following operators form a ternary conditional of the form
@@ -27,6 +24,9 @@ module Control.Cond
          -- For more information see 
          -- <zenzike.com/posts/2011-08-01-the-conditional-choice-operator>
        , (|>), (<|)
+         -- * Lifted conditional and boolean operators
+       , ifM, (<||>), (<&&>), notM, condM, condPlusM
+       , guardM, whenM, unlessM 
        ) where
 
 import Control.Monad
