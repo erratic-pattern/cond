@@ -1,0 +1,26 @@
+Name: cond
+Version: 0.0
+Synopsis: Basic conditional operators with monadic variants.
+Category: Control, Logic, Monad
+License: BSD3
+License-File: LICENSE
+Author: Adam Curtis
+Maintainer: acurtis@spsu.edu
+Homepage: https://github.com/kallisti-dev/cond
+Cabal-Version: >= 1.6
+Build-Type: Simple
+Description:
+  A very simple library implementing various conditional operations, as well
+  as some functions for dealing with conditions in monadic code. Feel free
+  to send ideas and suggestions for new conditional operators to the
+  maintainer.
+ 
+source-repository head
+  type: git
+  location: git://github.com/kallisti-dev/cond.git 
+
+library
+  hs-source-dirs: src
+  ghc-options: -Wall
+  exposed-modules: Control.Cond
+  build-depends: base >= 3 && < 5
