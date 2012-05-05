@@ -2,8 +2,8 @@
 module Control.Cond 
        ( -- * Simple conditional operators
          if', (??), bool
-         -- * Higher-order conditional
-       , select
+         -- * Higher-order conditionals
+       , (?.), select
          -- * Lisp-style conditional operators 
        , cond, condPlus
          -- * Lifted conditional and boolean operators
@@ -15,17 +15,20 @@ module Control.Cond
        ) where
 
 import Control.Monad
+import Control.Category
+import Prelude hiding ((.), id)
 
-infixr 1 ??
+infix  1 ??
 infixr 2 <||>
 infixr 3 <&&>
+infix  9 ?. 
 
 -- |A simple conditional function.
 if' :: Bool -> a -> a -> a
 if' p a b = if p then a else b
 {-# INLINE if' #-}
 
--- |'if'' with the 'Bool' argument at the end (infixr 1).
+-- |'if'' with the 'Bool' argument at the end (infix 1).
 (??) :: a -> a -> Bool -> a
 (??) a b p = if' p a b 
 {-# INLINE (??) #-}
@@ -54,6 +57,12 @@ cond ((p,v):ls) = if' p v (cond ls)
 condPlus :: MonadPlus m => [(Bool, a)] -> m a
 condPlus [] = mzero
 condPlus ((p,v):ls) = if' p (return v) (condPlus ls)
+
+-- |Conditional composition. If the predicate is False, 'id' is returned
+-- instead of the second argument. This function, for example, can be used to 
+-- conditionally apply functions in a composition chain.
+(?.) :: Category cat => Bool -> cat a a -> cat a a
+p ?. c = if' p c id
 
 -- |Composes a predicate function and 2 functions into a single
 -- function. The first function is called when the predicate yields True, the
