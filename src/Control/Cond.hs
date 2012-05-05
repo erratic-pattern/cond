@@ -11,6 +11,8 @@ module Control.Cond
        , (?.)
          -- * Conditional operatior on monoids
        , (?<>)
+         -- * Conditional operator on functions
+       , select
          -- * C-style ternary conditionals
        , (?)
          -- *Tony Hoare's conditional choice operator
@@ -25,8 +27,6 @@ module Control.Cond
          -- For more information see 
          -- <zenzike.com/posts/2011-08-01-the-conditional-choice-operator>
        , (|>), (<|)
-         -- * Higher-order conditional operator
-       , select
        ) where
 
 import Control.Monad
@@ -166,7 +166,7 @@ p ?<> m = if' p m mempty
 (?) :: Bool -> (Bool -> a) -> a
 p ? f = f p
 
--- |right bracket of the conditional choice operator. If the predicate,
+-- |right bracket of the conditional choice operator. If the predicate
 -- is 'False', returns 'Nothing', otherwise it returns 'Just' the right-hand
 -- argument.
 (|>) :: Bool -> a -> Maybe a
