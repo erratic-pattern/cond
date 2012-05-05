@@ -7,9 +7,11 @@ module Control.Cond
          -- * Lisp-style conditional operators 
        , cond, condPlus
          -- * Lifted conditional and boolean operators
-       , ifM, (<||>), (<&&>), condM, condPlusM
+       , ifM, (<||>), (<&&>), notM, condM, condPlusM
+         -- * Lifted guard and when
+       , guardM, whenM, unlessM 
        ) where
-import Control.Monad ( MonadPlus (mzero) )
+import Control.Monad ( MonadPlus (mzero), guard, liftM )
 
 infixr 1 ??
 infixr 2 <||>
@@ -76,6 +78,11 @@ ifM p a b = p >>= bool b a
 (<&&>) a b = ifM a b (return False)
 {-# INLINE (<&&>) #-}
 
+-- |Lifted boolean negation.
+notM :: Monad m => m Bool -> m Bool
+notM = liftM not
+{-# INLINE notM #-}
+
 -- |'cond' lifted to 'Monad'. If no conditions match, a runtime exception
 -- is thrown.
 condM :: Monad m => [(m Bool, m a)] -> m a 
@@ -87,3 +94,18 @@ condM ((p, v):ls) = ifM p v (condM ls)
 condPlusM :: MonadPlus m => [(m Bool, m a)] -> m a
 condPlusM [] = mzero
 condPlusM ((p, v):ls) = ifM p v (condPlusM ls)
+
+-- |a variant of 'Control.Monad.when' with a monadic predicate.
+whenM :: Monad m => m Bool -> m () -> m ()
+whenM p m = ifM p m (return ())
+{-# INLINE whenM #-}
+
+-- |a variant of 'Control.Monad.unless' with a monadic predicate.
+unlessM :: Monad m => m Bool -> m () -> m ()
+unlessM p m = ifM (notM p) m (return ())
+{-# INLINE unlessM #-}
+
+-- |a variant of 'Control.Monad.guard' with a monadic predicate.
+guardM :: MonadPlus m => m Bool -> m ()
+guardM = (guard =<<)
+{-# INLINE guardM #-}
