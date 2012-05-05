@@ -11,6 +11,8 @@ module Control.Cond
        , (?.)
          -- * Conditional operatior on monoids
        , (?<>)
+         -- * C-style ternary conditionals
+       , (?)
          -- *Tony Hoare's conditional choice operator
          -- |The following operators form a ternary conditional of the form
          -- 
@@ -28,12 +30,12 @@ module Control.Cond
        ) where
 
 import Control.Monad
-import Control.Category
+import Control.Category 
 import Data.Monoid
 import Prelude hiding ((.), id)
 
-infixr  0 <|, |>
-infix   1 ??
+infixr  0 <|, |>, ?
+infixr  1 ??
 infixr  2 <||>
 infixr  3 <&&>
 infixr  7 ?<>
@@ -153,6 +155,16 @@ guardM = (guard =<<)
 p ?<> m = if' p m mempty
 {-# INLINE (?<>) #-}
  
+
+-- |An operator that allows you to write C-style ternary conditionals of
+-- the form:
+--
+-- > p ? t ?? f
+--
+-- Note that parentheses are required in order to chain sequences of
+-- conditionals together. This is probably a good thing.
+(?) :: Bool -> (Bool -> a) -> a
+p ? f = f p
 
 -- |right bracket of the conditional choice operator. If the predicate,
 -- is 'False', returns 'Nothing', otherwise it returns 'Just' the right-hand
