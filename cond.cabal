@@ -11,9 +11,12 @@ Cabal-Version: >= 1.6
 Build-Type: Simple
 Description:
   A very simple library implementing various conditional operations, as well
-  as some functions for dealing with conditions and loops in monadic code.
+  as some functions for dealing with conditions in monadic code.
   Feel free to send ideas and suggestions for new conditional operators to the
   maintainer.
+
+  Monadic looping constructs are not included as part of this package, since the
+  monad-loops package has a fairly complete collection of them already.
  
 source-repository head
   type: git

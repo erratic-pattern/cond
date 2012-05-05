@@ -9,11 +9,9 @@ module Control.Cond
          -- * Lifted conditional and boolean operators
        , ifM, (<||>), (<&&>), notM, condM, condPlusM
        , guardM, whenM, unlessM 
-         -- * Monadic looping conditionals
-       , whileM, untilM, while1M, until1M
-         -- * Conditional operation on categories
+         -- * Conditional operator on categories
        , (?.)
-         -- * Conditional operation on monoids
+         -- * Conditional operatior on monoids
        , (?<>)
        ) where
 
@@ -130,27 +128,6 @@ unlessM p m = ifM (notM p) m (return ())
 guardM :: MonadPlus m => m Bool -> m ()
 guardM = (guard =<<)
 {-# INLINE guardM #-}
-
--- |A monadic while loop.
-whileM :: Monad m => m Bool -> m a -> m ()
-whileM p m = whenM p (m >> whileM p m) 
-
--- |A monadic while loop with a negated conditional.
-untilM :: Monad m => m Bool -> m a -> m ()
-untilM p = whileM (notM p)
-{-# INLINE untilM #-}
-
--- |A monadic do-while loop. The monadic action is guaranteed to be executed 
--- once. Because of this, we can also return the result of the last execution 
--- of the loop.
-while1M :: Monad m => m Bool -> m a -> m a
-while1M p m = do a <- m
-                 ifM p (while1M p m) (return a)
-
--- |A negated do-while loop.
-until1M :: Monad m => m Bool -> m a -> m a
-until1M p = while1M (notM p)
-{-# INLINE until1M #-}
 
 -- |Conditional monoid operator. If the predicate is 'False', the second
 -- argument is replaced with 'mempty'. The fixity of this operator is one
