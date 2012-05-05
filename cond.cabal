@@ -1,6 +1,6 @@
 Name: cond
-Version: 0.0.1
-Synopsis: Basic conditional operators with monadic variants.
+Version: 0.0.2
+Synopsis: Basic conditional and boolean operators with monadic variants.
 Category: Control, Logic, Monad
 License: BSD3
 License-File: LICENSE
@@ -11,8 +11,8 @@ Cabal-Version: >= 1.6
 Build-Type: Simple
 Description:
   A very simple library implementing various conditional operations, as well
-  as some functions for dealing with conditions in monadic code. Feel free
-  to send ideas and suggestions for new conditional operators to the
+  as some functions for dealing with conditions and loops in monadic code.
+  Feel free to send ideas and suggestions for new conditional operators to the
   maintainer.
  
 source-repository head

@@ -10,8 +10,11 @@ module Control.Cond
        , ifM, (<||>), (<&&>), notM, condM, condPlusM
          -- * Lifted guard and when
        , guardM, whenM, unlessM 
+         -- * Monadic looping conditionals
+       , whileM, untilM, while1M, until1M
        ) where
-import Control.Monad ( MonadPlus (mzero), guard, liftM )
+
+import Control.Monad
 
 infixr 1 ??
 infixr 2 <||>
@@ -55,6 +58,9 @@ condPlus ((p,v):ls) = if' p (return v) (condPlus ls)
 -- |Composes a predicate function and 2 functions into a single
 -- function. The first function is called when the predicate yields True, the
 -- second when the predicate yields False.
+--
+-- Note that after importing "Control.Monad.Instances", 'select' becomes a  
+-- special case of 'ifM'.
 select :: (a -> Bool) -> (a -> b) -> (a -> b) -> (a -> b)
 select p a b x = if' (p x) (a x) (b x)
 {-# INLINE select #-}
@@ -109,3 +115,24 @@ unlessM p m = ifM (notM p) m (return ())
 guardM :: MonadPlus m => m Bool -> m ()
 guardM = (guard =<<)
 {-# INLINE guardM #-}
+
+-- |A monadic while loop.
+whileM :: Monad m => m Bool -> m a -> m ()
+whileM p m = whenM p (m >> whileM p m) 
+
+-- |A monadic while loop with a negated conditional.
+untilM :: Monad m => m Bool -> m a -> m ()
+untilM p = whileM (notM p)
+{-# INLINE untilM #-}
+
+-- |A monadic do-while loop. The monadic action is guaranteed to be executed 
+-- once. Because of this, we can also return the result of the last execution 
+-- of the loop.
+while1M :: Monad m => m Bool -> m a -> m a
+while1M p m = do a <- m
+                 ifM p (while1M p m) (return a)
+
+-- |A negated do-while loop.
+until1M :: Monad m => m Bool -> m a -> m a
+until1M p = while1M (notM p)
+{-# INLINE until1M #-}
