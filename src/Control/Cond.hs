@@ -2,26 +2,31 @@
 module Control.Cond 
        ( -- * Simple conditional operators
          if', (??), bool
-         -- * Higher-order conditionals
-       , (?.), select
          -- * Lisp-style conditional operators 
        , cond, condPlus
+         -- * Higher-order conditional operator
+       , select
          -- * Lifted conditional and boolean operators
        , ifM, (<||>), (<&&>), notM, condM, condPlusM
-         -- * Lifted guard and when
        , guardM, whenM, unlessM 
          -- * Monadic looping conditionals
        , whileM, untilM, while1M, until1M
+         -- * Conditional operation on categories
+       , (?.)
+         -- * Conditional operation on monoids
+       , (?<>)
        ) where
 
 import Control.Monad
 import Control.Category
+import Data.Monoid
 import Prelude hiding ((.), id)
 
-infix  1 ??
-infixr 2 <||>
-infixr 3 <&&>
-infix  9 ?. 
+infix   1 ??
+infixr  2 <||>
+infixr  3 <&&>
+infixr  7 ?<>
+infixr  9 ?. 
 
 -- |A simple conditional function.
 if' :: Bool -> a -> a -> a
@@ -60,9 +65,10 @@ condPlus ((p,v):ls) = if' p (return v) (condPlus ls)
 
 -- |Conditional composition. If the predicate is False, 'id' is returned
 -- instead of the second argument. This function, for example, can be used to 
--- conditionally apply functions in a composition chain.
+-- conditionally add functions to a composition chain.
 (?.) :: Category cat => Bool -> cat a a -> cat a a
 p ?. c = if' p c id
+{-# INLINE (?.) #-}
 
 -- |Composes a predicate function and 2 functions into a single
 -- function. The first function is called when the predicate yields True, the
@@ -145,3 +151,14 @@ while1M p m = do a <- m
 until1M :: Monad m => m Bool -> m a -> m a
 until1M p = while1M (notM p)
 {-# INLINE until1M #-}
+
+-- |Conditional monoid operator. If the predicate is 'False', the second
+-- argument is replaced with 'mempty'. The fixity of this operator is one
+-- level higher than 'Control.Monoid.<>'. 
+--
+-- It can also be used to chain multiple predicates together, like this: 
+--
+-- > even (length ls) ?<> not (null ls) ?<> ls
+(?<>) :: Monoid a => Bool -> a -> a
+p ?<> m = if' p m mempty
+{-# INLINE (?<>) #-}
