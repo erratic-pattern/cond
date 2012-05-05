@@ -1,5 +1,5 @@
 Name: cond
-Version: 0.0
+Version: 0.0.1
 Synopsis: Basic conditional operators with monadic variants.
 Category: Control, Logic, Monad
 License: BSD3
