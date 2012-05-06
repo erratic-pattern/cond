@@ -26,7 +26,7 @@ module Control.Cond
        , (|>), (<|)
          -- **Unicode variants
          -- |Intended to resemble the notation used in Tony Hoare's 
-         -- Communicating Sequential Processes.
+         -- Unified Theories of Programming.
        , (⊳), (⊲)
          -- * Lifted conditional and boolean operators
        , ifM, (<||>), (<&&>), notM, condM, condPlusM
