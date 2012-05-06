@@ -149,24 +149,24 @@ condPlusM :: MonadPlus m => [(m Bool, m a)] -> m a
 condPlusM [] = mzero
 condPlusM ((p, v):ls) = ifM p v (condPlusM ls)
 
--- |a variant of 'Control.Monad.when' with a monadic predicate.
+-- |A variant of 'Control.Monad.when' with a monadic predicate.
 whenM :: Monad m => m Bool -> m () -> m ()
 whenM p m = ifM p m (return ())
 {-# INLINE whenM #-}
 
--- |a variant of 'Control.Monad.unless' with a monadic predicate.
+-- |A variant of 'Control.Monad.unless' with a monadic predicate.
 unlessM :: Monad m => m Bool -> m () -> m ()
 unlessM p m = ifM (notM p) m (return ())
 {-# INLINE unlessM #-}
 
--- |a variant of 'Control.Monad.guard' with a monadic predicate.
+-- |A variant of 'Control.Monad.guard' with a monadic predicate.
 guardM :: MonadPlus m => m Bool -> m ()
 guardM = (guard =<<)
 {-# INLINE guardM #-}
 
 -- |Conditional monoid operator. If the predicate is 'False', the second
 -- argument is replaced with 'mempty'. The fixity of this operator is one
--- level higher than 'Control.Monoid.<>'. 
+-- level higher than 'Data.Monoid.<>'. 
 --
 -- It can also be used to chain multiple predicates together, like this: 
 --
@@ -186,14 +186,14 @@ p ?<> m = if' p m mempty
 (?) :: Bool -> (Bool -> a) -> a
 p ? f = f p
 
--- |right bracket of the conditional choice operator. If the predicate
+-- |Right bracket of the conditional choice operator. If the predicate
 -- is 'False', returns 'Nothing', otherwise it returns 'Just' the right-hand
 -- argument.
 (|>) :: Bool -> a -> Maybe a
 True  |> _ = Nothing
 False |> f = Just f
 
--- |left bracket of the conditional choice operator. This is equivalent to
+-- |Left bracket of the conditional choice operator. This is equivalent to
 -- 'Data.Maybe.fromMaybe'
 (<|) :: a -> Maybe a -> a
 t <| Nothing = t
