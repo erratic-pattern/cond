@@ -29,8 +29,8 @@ module Control.Cond
          -- Unified Theories of Programming.
        , (⊳), (⊲)
          -- * Lifted conditional and boolean operators
-       , ifM, (<||>), (<&&>), notM, condM, condPlusM
-       , guardM, whenM, unlessM 
+       , ifM, (<||>), (<&&>), notM, condM, condPlusM, otherwiseM
+       , guardM, whenM, unlessM, selectM 
        ) where
 
 import Control.Monad
@@ -149,6 +149,10 @@ condPlusM :: MonadPlus m => [(m Bool, m a)] -> m a
 condPlusM [] = mzero
 condPlusM ((p, v):ls) = ifM p v (condPlusM ls)
 
+-- |A synonym for 'return' 'True'.
+otherwiseM :: Monad m => m Bool
+otherwiseM = return True
+
 -- |a variant of 'Control.Monad.when' with a monadic predicate.
 whenM :: Monad m => m Bool -> m () -> m ()
 whenM p m = ifM p m (return ())
@@ -163,6 +167,10 @@ unlessM p m = ifM (notM p) m (return ())
 guardM :: MonadPlus m => m Bool -> m ()
 guardM = (guard =<<)
 {-# INLINE guardM #-}
+
+-- |'select' lifted to 'Monad'.
+selectM :: Monad m => (a -> m Bool) -> (a -> m b) -> (a -> m b) -> (a -> m b)
+selectM p t f x = ifM (p x) (t x) (f x) 
 
 -- |Conditional monoid operator. If the predicate is 'False', the second
 -- argument is replaced with 'mempty'. The fixity of this operator is one
