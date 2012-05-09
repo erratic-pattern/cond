@@ -5,7 +5,7 @@ module Data.Algebra.Boolean
 import Data.Monoid (Any(..), All(..), Dual(..), Endo(..))
 import Prelude hiding ((&&), (||), not)
 import qualified Prelude as P
-infixr  0 <-->
+infixr  0 <-->, `xor`
 infixr  1 -->
 infixr  2 ||
 infixr  3 &&
