@@ -1,5 +1,5 @@
 Name: cond
-Version: 0.1
+Version: 0.2
 Synopsis: Basic conditional and boolean operators with monadic variants.
 Category: Control, Logic, Monad
 License: BSD3
@@ -25,5 +25,5 @@ source-repository head
 library
   hs-source-dirs: src
   ghc-options: -Wall
-  exposed-modules: Control.Cond
+  exposed-modules: Control.Conditional
   build-depends: base >= 3 && < 5
