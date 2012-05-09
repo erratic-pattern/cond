@@ -26,4 +26,5 @@ library
   hs-source-dirs: src
   ghc-options: -Wall
   exposed-modules: Control.Conditional
+                   Data.Algebra.Boolean
   build-depends: base >= 3 && < 5
