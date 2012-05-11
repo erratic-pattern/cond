@@ -1,8 +1,18 @@
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances, GeneralizedNewtypeDeriving, 
+             DeriveDataTypeable 
+  #-}
 module Data.Algebra.Boolean 
-       ( Boolean(..), fromBool
+       ( Boolean(..), fromBool, Bitwise(..)
        ) where
 import Data.Monoid (Any(..), All(..), Dual(..), Endo(..))
+import Data.Bits (Bits, complement, (.|.), (.&.))
+import qualified Data.Bits as Bits
+import Data.Function (on)
+import Data.Typeable
+import Data.Data
+import Data.Ix
+import Foreign.Storable
+import Text.Printf
 import Prelude hiding ((&&), (||), not)
 import qualified Prelude as P
 
@@ -98,3 +108,18 @@ instance Boolean (Endo Bool) where
   (Endo p) `xor` (Endo q) = Endo (\a -> p a `xor` q a)
   (Endo p) --> (Endo q)   = Endo (\a -> p a --> q a)
   (Endo p) <--> (Endo q)  = Endo (\a -> p a <--> q a)
+  
+
+newtype Bitwise a = Bitwise {getBits :: a} 
+                  deriving (Num, Bits, Eq, Ord, Bounded, Enum, Show, Read, Real,
+                            Integral,  Typeable, Data, Ix, Storable, PrintfArg)
+
+instance Bits a => Boolean (Bitwise a) where
+  true  = not false 
+  false = Bitwise 0 
+  not = Bitwise . complement . getBits
+  (&&) = (Bitwise .) . (.&.) `on` getBits
+  (||) = (Bitwise .) . (.|.) `on` getBits
+  xor  = (Bitwise .) . (Bits.xor `on` getBits)
+  (<-->) = xor `on` not
+
