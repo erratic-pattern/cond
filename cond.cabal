@@ -23,6 +23,8 @@ Description:
   .
   Monadic looping constructs are not included as part of this package, since the
   monad-loops package has a fairly complete collection of them already.
+Extra-source-files:
+  README.md
  
 source-repository head
   type: git
