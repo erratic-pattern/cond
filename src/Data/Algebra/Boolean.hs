@@ -5,6 +5,7 @@ module Data.Algebra.Boolean
 import Data.Monoid (Any(..), All(..), Dual(..), Endo(..))
 import Prelude hiding ((&&), (||), not)
 import qualified Prelude as P
+
 infixr  0 <-->, `xor`
 infixr  1 -->
 infixr  2 ||
@@ -56,7 +57,6 @@ instance Boolean Bool where
   False --> _     = True
   (<-->) = (==)
   
-
 instance Boolean Any where
   true                  = Any True
   false                 = Any False

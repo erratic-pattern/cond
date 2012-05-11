@@ -100,9 +100,10 @@ cond [] = error "cond: no matching conditions"
 cond ((p,v):ls) = if' p v (cond ls)
 
 -- | Analogous to the 'cond' function with a default value supplied,
---   which will be used when no condition in the list is matched.
+-- which will be used when no condition in the list is matched.
 condDefault :: ToBool b => a -> [(b, a)] -> a
 condDefault = (. condPlus) . (<|)
+{-# INLINE condDefault #-}
 
 -- |Lisp-style conditionals generalized over 'MonadPlus'. If no conditions
 -- match, then the result is 'mzero'. This is a safer variant of 'cond'.
