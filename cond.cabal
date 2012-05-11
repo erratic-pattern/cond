@@ -1,5 +1,5 @@
 Name: cond
-Version: 0.1
+Version: 0.3
 Synopsis: Basic conditional and boolean operators with monadic variants.
 Category: Control, Logic, Monad
 License: BSD3
@@ -10,11 +10,17 @@ Homepage: https://github.com/kallisti-dev/cond
 Cabal-Version: >= 1.6
 Build-Type: Simple
 Description:
-  A very simple library implementing various conditional operations, as well
-  as some functions for dealing with conditions in monadic code.
+  This library provides:
+  .
+  * Implementations of various overloaded conditional operations
+  .
+  * Lifted monadic variants of those operations and common boolean operators
+  .
+  * A typeclass for boolean algebras.
+  .
   Feel free to send ideas and suggestions for new conditional operators to the
   maintainer.
-
+  .
   Monadic looping constructs are not included as part of this package, since the
   monad-loops package has a fairly complete collection of them already.
  
@@ -25,5 +31,6 @@ source-repository head
 library
   hs-source-dirs: src
   ghc-options: -Wall
-  exposed-modules: Control.Cond
+  exposed-modules: Control.Conditional
+                   Data.Algebra.Boolean
   build-depends: base >= 3 && < 5
