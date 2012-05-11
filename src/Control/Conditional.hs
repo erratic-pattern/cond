@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
--- | A convenient set of useful conditional operators.
+-- |A convenient set of useful conditional operators.
 module Control.Conditional
        ( -- *Conversion typeclass
          ToBool(..)
@@ -176,17 +176,6 @@ condM ((p, v):ls) = ifM p v (condM ls)
 condPlusM :: (ToBool b, MonadPlus m) => [(m b, m a)] -> m a
 condPlusM [] = mzero
 condPlusM ((p, v):ls) = ifM p v (condPlusM ls)
-
--- |A variant of 'Control.Monad.when' with a monadic predicate.
-whenM :: Monad m => m Bool -> m () -> m ()
-whenM p m = ifM p m (return ())
-{-# INLINE whenM #-}
-
--- |A variant of 'Control.Monad.unless' with a monadic predicate.
-unlessM :: Monad m => m Bool -> m () -> m ()
-unlessM p m = ifM (notM p) m (return ())
-{-# INLINE unlessM #-}
-
 
 -- |A synonym for 'return' 'true'.
 otherwiseM :: (Boolean b, Monad m) => m b
