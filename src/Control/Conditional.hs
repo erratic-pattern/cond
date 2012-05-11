@@ -71,11 +71,12 @@ instance ToBool All  where toBool = getAll
 instance ToBool (Dual Bool) where toBool = getDual
 
 -- |A simple conditional operator
-if' :: ToBool b => b -> a -> a -> a
+if' :: ToBool bool => bool -> a -> a -> a
 if' p t f = if toBool p then t else f
+{-# INLINE if' #-}
 
 -- |'if'' with the 'Bool' argument at the end (infixr 1).
-(??) :: ToBool b => a -> a -> b -> a
+(??) :: ToBool bool => a -> a -> bool -> a
 (??) t f p = if' p t f 
 {-# INLINE (??) #-}
 
@@ -83,7 +84,7 @@ if' p t f = if toBool p then t else f
 -- 'foldr', 'Data.Maybe.maybe', and 'Data.Either.either'. The first argument is 
 -- the false case, the second argument is the true case, and the last argument 
 -- is the predicate value.
-bool :: (ToBool b) => a -> a -> b -> a
+bool :: (ToBool bool) => a -> a -> bool -> a
 bool f t p = if' p t f
 {-# INLINE bool #-}
 
@@ -95,13 +96,13 @@ bool f t p = if' p t f
 --                   ,(x < 0     , -1)
 --                   ,(otherwise , 0 )]
 -- @
-cond :: ToBool b => [(b, a)] -> a
+cond :: ToBool bool => [(bool, a)] -> a
 cond [] = error "cond: no matching conditions"
 cond ((p,v):ls) = if' p v (cond ls)
 
 -- | Analogous to the 'cond' function with a default value supplied,
 -- which will be used when no condition in the list is matched.
-condDefault :: ToBool b => a -> [(b, a)] -> a
+condDefault :: ToBool bool => a -> [(bool, a)] -> a
 condDefault = (. condPlus) . (<|)
 {-# INLINE condDefault #-}
 
@@ -122,14 +123,14 @@ condDefault = (. condPlus) . (<|)
 --   signum x = 0 \<| condPlus [(x > 0, 1 ) 
 --                            ,(x < 0, -1)]
 -- @
-condPlus :: (ToBool b, MonadPlus m) => [(b, a)] -> m a
+condPlus :: (ToBool bool, MonadPlus m) => [(bool, a)] -> m a
 condPlus [] = mzero
 condPlus ((p,v):ls) = if' p (return v) (condPlus ls)
 
 -- |Conditional composition. If the predicate is False, 'id' is returned
 -- instead of the second argument. This function, for example, can be used to 
 -- conditionally add functions to a composition chain.
-(?.) :: (ToBool b, Category cat) => b -> cat a a -> cat a a
+(?.) :: (ToBool bool, Category cat) => bool -> cat a a -> cat a a
 p ?. c = if' p c id
 {-# INLINE (?.) #-}
 
@@ -139,87 +140,87 @@ p ?. c = if' p c id
 --
 -- Note that after importing "Control.Monad.Instances", 'select' becomes a  
 -- special case of 'ifM'.
-select :: ToBool p => (a -> p) -> (a -> b) -> (a -> b) -> (a -> b)
+select :: ToBool bool => (a -> bool) -> (a -> b) -> (a -> b) -> (a -> b)
 select p t f x = if' (p x) (t x) (f x)
 {-# INLINE select #-}
 
 -- |'if'' lifted to 'Monad'. Unlike 'liftM3' 'if'', this is  
 -- short-circuiting in the monad, such that only the predicate action and one of
 -- the remaining argument actions are executed.
-ifM :: (ToBool b, Monad m) => m b -> m a -> m a -> m a 
+ifM :: (ToBool bool, Monad m) => m bool -> m a -> m a -> m a 
 ifM p t f = p >>= bool f t
 {-# INLINE ifM #-}
 
 -- |Lifted inclusive disjunction. Unlike 'liftM2' ('||'), This function is 
 -- short-circuiting in the monad. Fixity is the same as '||' (infixr 2).
-(<||>) :: (ToBool b, Boolean b, Monad m) => m b -> m b -> m b
+(<||>) :: (ToBool bool, Boolean bool, Monad m) => m bool -> m bool -> m bool
 (<||>) t f = ifM t (return true) f
 {-# INLINE (<||>) #-}
 
 -- |Lifted conjunction. Unlike 'liftM2' ('&&'), this function is 
 -- short-circuiting in the monad. Fixity is the same as '&&' (infxr 3).
-(<&&>) :: (ToBool b, Boolean b, Monad m) => m b -> m b -> m b
+(<&&>) :: (ToBool bool, Boolean bool, Monad m) => m bool -> m bool -> m bool
 (<&&>) t f = ifM t f (return false)
 {-# INLINE (<&&>) #-}
 
 -- |Lifted boolean negation.
-notM :: (Boolean b, Monad m) => m b -> m b
+notM :: (Boolean bool, Monad m) => m bool -> m bool
 notM = liftM not
 {-# INLINE notM #-}
 
 -- |Lifted boolean exclusive disjunction.
-xorM :: (Boolean b, Monad m) => m b -> m b -> m b
+xorM :: (Boolean bool, Monad m) => m bool -> m bool -> m bool
 xorM = liftM2 xor
 
 -- |'cond' lifted to 'Monad'. If no conditions match, a runtime exception
 -- is thrown.
-condM :: (ToBool b, Monad m) => [(m b, m a)] -> m a 
+condM :: (ToBool bool, Monad m) => [(m bool, m a)] -> m a 
 condM [] = error "condM: no matching conditions"
 condM ((p, v):ls) = ifM p v (condM ls)
 
 -- |'condPlus' lifted to 'Monad'. If no conditions match, then 'mzero'
 -- is returned.
-condPlusM :: (ToBool b, MonadPlus m) => [(m b, m a)] -> m a
+condPlusM :: (ToBool bool, MonadPlus m) => [(m bool, m a)] -> m a
 condPlusM [] = mzero
 condPlusM ((p, v):ls) = ifM p v (condPlusM ls)
 
 -- |A synonym for 'return' 'true'.
-otherwiseM :: (Boolean b, Monad m) => m b
+otherwiseM :: (Boolean bool, Monad m) => m bool
 otherwiseM = return true
 
 -- |Generalization of 'Control.Monad.guard'
-guard :: (ToBool b, MonadPlus m) => b -> m ()
+guard :: (ToBool bool, MonadPlus m) => bool -> m ()
 guard p = if' p (return ()) mzero
 {-# INLINE guard #-}
 
 -- |Generalization of 'Control.Monad.when'
-when :: (ToBool b, MonadPlus m) => b -> m () -> m ()
+when :: (ToBool bool, MonadPlus m) => bool -> m () -> m ()
 when p m = if' p m (return ())
 {-# INLINE when #-}
 
 -- |Generalization of 'Control.Monad.unless'
-unless :: (Boolean b, ToBool b, MonadPlus m) => b -> m() -> m()
+unless :: (Boolean bool, ToBool bool, MonadPlus m) => bool -> m() -> m()
 unless p m = if' (not p) m (return ())
 {-# INLINE unless #-}
 
 -- |A variant of 'when' with a monadic predicate.
-whenM :: (ToBool b, Monad m) => m b -> m () -> m ()
+whenM :: (ToBool bool, Monad m) => m bool -> m () -> m ()
 whenM p m = ifM p m (return ())
 {-# INLINE whenM #-}
 
 -- |A variant of 'unless' with a monadic predicate.
-unlessM :: (ToBool b, Boolean b, Monad m) => m b -> m () -> m ()
+unlessM :: (ToBool bool, Boolean bool, Monad m) => m bool -> m () -> m ()
 unlessM p m = ifM (notM p) m (return ())
 {-# INLINE unlessM #-}
 
 -- |A variant of 'guard' with a monadic predicate.
-guardM :: (ToBool b, MonadPlus m) => m b -> m ()
+guardM :: (ToBool bool, MonadPlus m) => m bool -> m ()
 guardM = (guard =<<)
 {-# INLINE guardM #-}
 
 -- |'select' lifted to 'Monad'.
-selectM :: (ToBool p, Monad m) => 
-           (a -> m p) -> (a -> m b) -> (a -> m b) -> (a -> m b)
+selectM :: (ToBool bool, Monad m) => 
+           (a -> m bool) -> (a -> m b) -> (a -> m b) -> (a -> m b)
 selectM p t f x = ifM (p x) (t x) (f x) 
 {-# INLINE selectM #-}
 
@@ -230,7 +231,7 @@ selectM p t f x = ifM (p x) (t x) (f x)
 -- It can also be used to chain multiple predicates together, like this: 
 --
 -- > even (length ls) ?<> not (null ls) ?<> ls
-(?<>) :: (ToBool b, Monoid a) => b -> a -> a
+(?<>) :: (ToBool bool, Monoid a) => bool -> a -> a
 p ?<> m = if' p m mempty
 {-# INLINE (?<>) #-}
  
@@ -249,7 +250,7 @@ p ? f = f p
 -- |Right bracket of the conditional choice operator. If the predicate
 -- is 'False', returns 'Nothing', otherwise it returns 'Just' the right-hand
 -- argument.
-(|>) :: ToBool b => b -> a -> Maybe a
+(|>) :: ToBool bool => bool -> a -> Maybe a
 p |> v = if' p Nothing (Just v)
 {-# INLINE (|>) #-}
 
@@ -261,7 +262,7 @@ _ <| Just f  = f
 {-# INLINE (<|) #-}
 
 -- |A monadic variant of '|>'.
-(|>>) :: (ToBool b, Monad m) => m b -> m a -> m (Maybe a)
+(|>>) :: (ToBool bool, Monad m) => m bool -> m a -> m (Maybe a)
 p |>> v = ifM p (return Nothing) (liftM Just v)
 {-# INLINE (|>>) #-}
 
@@ -275,5 +276,5 @@ v <<| mv = liftM2 fromMaybe v mv
 (⊲) = (<|)
 
 -- |Unicode rebinding of '|>'.
-(⊳) :: ToBool b => b -> a -> Maybe a
+(⊳) :: ToBool bool => bool -> a -> Maybe a
 (⊳) = (|>)
