@@ -21,14 +21,14 @@ infixr  1 -->
 infixr  2 ||
 infixr  3 &&
 
--- |A class for boolean algebras. Instances of this class should obey
--- all the axioms of boolean algebra.
+-- |A class for boolean algebras. Instances of this class are expected to obey
+-- all the laws of boolean algebra.
 --
 -- Minimal complete definition: 'true' or 'false', 'not' or '<-->', '||' or '&&'. 
 class Boolean b where
-  -- |Truth value.
+  -- |Truth value, defined as the top of the bounded lattice
   true    :: b
-  -- |False value.
+  -- |False value, defined as the bottom of the bounded lattice.
   false   :: b
   -- |Logical negation.
   not     :: b -> b
