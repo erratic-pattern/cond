@@ -14,7 +14,7 @@ infixr  3 &&
 -- |A class for boolean algebras. Instances of this class should obey
 -- all the axioms of boolean algebra.
 --
--- Minimal complete definition: 'true', 'false', 'not' or '<-->', '||' or '&&'. 
+-- Minimal complete definition: 'true' or 'false', 'not' or '<-->', '||' or '&&'. 
 class Boolean b where
   -- |Truth value.
   true    :: b
@@ -34,6 +34,8 @@ class Boolean b where
   (<-->) :: b -> b -> b
   
   -- Default implementations
+  true      = not false
+  false     = not true
   not       = (<--> false)
   x && y    = not (x || y) 
   x || y    = not (x && y)
