@@ -62,8 +62,8 @@ infixr  9 ?.
 -- > p || q = if toBool p then true else q
 --
 -- > p && q = if toBool p then q else false
-class ToBool b where
-  toBool :: b -> Bool
+class ToBool bool where
+  toBool :: bool -> Bool
 
 instance ToBool Bool where toBool = id
 instance ToBool Any  where toBool = getAny

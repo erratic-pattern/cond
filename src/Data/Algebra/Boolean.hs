@@ -16,8 +16,7 @@ import Text.Printf
 import Prelude hiding ((&&), (||), not)
 import qualified Prelude as P
 
-infixr  0 <-->, `xor`
-infixr  1 -->
+infixr  1 <-->, `xor`, -->
 infixr  2 ||
 infixr  3 &&
 
@@ -32,15 +31,15 @@ class Boolean b where
   false   :: b
   -- |Logical negation.
   not     :: b -> b
-  -- |Logical conjunction.
+  -- |Logical conjunction. (infxr 3)
   (&&)    :: b -> b -> b
-  -- |Logical inclusive disjunction.
+  -- |Logical inclusive disjunction. (infixr 2)
   (||)    :: b -> b -> b
-  -- |Logical exclusive disjunction.
+  -- |Logical exclusive disjunction. (infixr 1)
   xor   :: b -> b -> b
-  -- |Logical implication
+  -- |Logical implication. (infixr 1)
   (-->) :: b -> b -> b
-  -- |Logical biconditional
+  -- |Logical biconditional. (infixr 1)
   (<-->) :: b -> b -> b
   
   -- Default implementations
@@ -115,11 +114,11 @@ newtype Bitwise a = Bitwise {getBits :: a}
                             Integral,  Typeable, Data, Ix, Storable, PrintfArg)
 
 instance Bits a => Boolean (Bitwise a) where
-  true  = not false 
-  false = Bitwise 0 
-  not = Bitwise . complement . getBits
-  (&&) = (Bitwise .) . (.&.) `on` getBits
-  (||) = (Bitwise .) . (.|.) `on` getBits
-  xor  = (Bitwise .) . (Bits.xor `on` getBits)
+  true   = not false 
+  false  = Bitwise 0 
+  not    = Bitwise . complement . getBits
+  (&&)   = (Bitwise .) . (.&.) `on` getBits
+  (||)   = (Bitwise .) . (.|.) `on` getBits
+  xor    = (Bitwise .) . (Bits.xor `on` getBits)
   (<-->) = xor `on` not
 
