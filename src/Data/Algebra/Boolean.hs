@@ -109,9 +109,16 @@ instance Boolean (Endo Bool) where
   (Endo p) <--> (Endo q)  = Endo (\a -> p a <--> q a)
   
 
+-- |A newtype wrapper that derives a 'Boolean' instance from any 'Bits' instance,
+-- such that boolean logic operations on the 'Bitwise' wrapper correspond to 
+-- bitwise logic operations on the inner type.
+-- 
+-- In addition, a number of other classes are automatically derived from the inner 
+-- type. These classes were chosen on the basis that many other 'Bits' 
+-- instances defined in base are also instances of these classes.
 newtype Bitwise a = Bitwise {getBits :: a} 
                   deriving (Num, Bits, Eq, Ord, Bounded, Enum, Show, Read, Real,
-                            Integral,  Typeable, Data, Ix, Storable, PrintfArg)
+                            Integral, Typeable, Data, Ix, Storable, PrintfArg)
 
 instance Bits a => Boolean (Bitwise a) where
   true   = not false 
