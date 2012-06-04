@@ -248,7 +248,7 @@ p ? f = f p
 {-# INLINE (?) #-}
 
 -- |Right bracket of the conditional choice operator. If the predicate
--- is 'False', returns 'Nothing', otherwise it returns 'Just' the right-hand
+-- is 'True', returns 'Nothing', otherwise it returns 'Just' the right-hand
 -- argument.
 (|>) :: ToBool bool => bool -> a -> Maybe a
 p |> v = if' p Nothing (Just v)
