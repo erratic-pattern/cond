@@ -108,6 +108,15 @@ instance Boolean (Endo Bool) where
   (Endo p) --> (Endo q)   = Endo (\a -> p a --> q a)
   (Endo p) <--> (Endo q)  = Endo (\a -> p a <--> q a)
   
+instance (Boolean x, Boolean y) => Boolean (x, y) where
+  true                = (true, true)
+  false               = (false, false)
+  not (a, b)          = (not a, not b)
+  (a, b) && (c, d)    = (a && c, b && d)
+  (a, b) || (c, d)    = (a || c, b || d)
+  (a, b) `xor` (c, d) = (a `xor` c, b `xor` d)
+  (a, b) --> (c, d)   = (a --> c, b --> d)
+  (a, b) <--> (c, d)  = (a <--> c, b <--> d)
 
 -- |A newtype wrapper that derives a 'Boolean' instance from any type that is both
 -- a 'Bits' instance and a 'Num' instance,
