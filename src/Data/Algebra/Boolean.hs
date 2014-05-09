@@ -11,9 +11,11 @@ import Data.Function (on)
 import Data.Typeable
 import Data.Data
 import Data.Ix
+import Data.Foldable (Foldable)
+import qualified Data.Foldable as F
 import Foreign.Storable
 import Text.Printf
-import Prelude hiding ((&&), (||), not)
+import Prelude hiding ((&&), (||), not, and, or, any, all)
 import qualified Prelude as P
 
 infixr  1 <-->, `xor`, -->
@@ -42,6 +44,30 @@ class Boolean b where
   -- |Logical biconditional. (infixr 1)
   (<-->) :: b -> b -> b
 
+  -- | The logical conjunction of several values.
+  and :: Foldable t => t b -> b
+
+  -- | The logical disjunction of several values.
+  or :: Foldable t => t b -> b
+
+  -- | The negated logical conjunction of several values.
+  --
+  -- @'nand' = 'not' . 'and'@
+  nand :: Foldable t => t b -> b
+  nand = not . and
+
+  -- | The logical conjunction of the mapping of a function over several values.
+  all :: Foldable t => (a -> b) -> t a -> b
+
+  -- | The logical disjunction of the mapping of a function over several values.
+  any :: Foldable t => (a -> b) -> t a -> b
+
+  -- | The negated logical disjunction of several values.
+  --
+  -- @'nor' = 'not' . 'or'@
+  nor :: Foldable t => t b -> b
+  nor = not . or
+
   -- Default implementations
   true      = not false
   false     = not true
@@ -51,6 +77,13 @@ class Boolean b where
   x `xor` y = (x || y) && (not (x && y))
   x --> y   = not x || y
   x <--> y  = (x && y) || not (x || y)
+  and       = F.foldl' (&&) true
+  or        = F.foldl' (||) false
+  all p     = F.foldl' f true
+    where f a b = a && p b
+  any p     = F.foldl' f false
+    where f a b = a || p b
+
 
 -- |Injection from 'Bool' into a boolean algebra.
 fromBool :: Boolean b => Bool -> b
@@ -139,4 +172,3 @@ instance (Num a, Bits a) => Boolean (Bitwise a) where
   (||)   = (Bitwise .) . (.|.) `on` getBits
   xor    = (Bitwise .) . (Bits.xor `on` getBits)
   (<-->) = xor `on` not
-
