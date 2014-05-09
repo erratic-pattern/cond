@@ -1,7 +1,7 @@
-{-# LANGUAGE FlexibleInstances, GeneralizedNewtypeDeriving, 
-             DeriveDataTypeable 
+{-# LANGUAGE FlexibleInstances, GeneralizedNewtypeDeriving,
+             DeriveDataTypeable
   #-}
-module Data.Algebra.Boolean 
+module Data.Algebra.Boolean
        ( Boolean(..), fromBool, Bitwise(..)
        ) where
 import Data.Monoid (Any(..), All(..), Dual(..), Endo(..))
@@ -11,9 +11,11 @@ import Data.Function (on)
 import Data.Typeable
 import Data.Data
 import Data.Ix
+import Data.Foldable (Foldable)
+import qualified Data.Foldable as F
 import Foreign.Storable
 import Text.Printf
-import Prelude hiding ((&&), (||), not)
+import Prelude hiding ((&&), (||), not, and, or, any, all)
 import qualified Prelude as P
 
 infixr  1 <-->, `xor`, -->
@@ -23,7 +25,7 @@ infixr  3 &&
 -- |A class for boolean algebras. Instances of this class are expected to obey
 -- all the laws of boolean algebra.
 --
--- Minimal complete definition: 'true' or 'false', 'not' or '<-->', '||' or '&&'. 
+-- Minimal complete definition: 'true' or 'false', 'not' or '<-->', '||' or '&&'.
 class Boolean b where
   -- |Truth value, defined as the top of the bounded lattice
   true    :: b
@@ -41,16 +43,47 @@ class Boolean b where
   (-->) :: b -> b -> b
   -- |Logical biconditional. (infixr 1)
   (<-->) :: b -> b -> b
-  
+
+  -- | The logical conjunction of several values.
+  and :: Foldable t => t b -> b
+
+  -- | The logical disjunction of several values.
+  or :: Foldable t => t b -> b
+
+  -- | The negated logical conjunction of several values.
+  --
+  -- @'nand' = 'not' . 'and'@
+  nand :: Foldable t => t b -> b
+  nand = not . and
+
+  -- | The logical conjunction of the mapping of a function over several values.
+  all :: Foldable t => (a -> b) -> t a -> b
+
+  -- | The logical disjunction of the mapping of a function over several values.
+  any :: Foldable t => (a -> b) -> t a -> b
+
+  -- | The negated logical disjunction of several values.
+  --
+  -- @'nor' = 'not' . 'or'@
+  nor :: Foldable t => t b -> b
+  nor = not . or
+
   -- Default implementations
   true      = not false
   false     = not true
   not       = (<--> false)
-  x && y    = not (x || y) 
+  x && y    = not (x || y)
   x || y    = not (x && y)
   x `xor` y = (x || y) && (not (x && y))
   x --> y   = not x || y
   x <--> y  = (x && y) || not (x || y)
+  and       = F.foldl' (&&) true
+  or        = F.foldl' (||) false
+  all p     = F.foldl' f true
+    where f a b = a && p b
+  any p     = F.foldl' f false
+    where f a b = a || p b
+
 
 -- |Injection from 'Bool' into a boolean algebra.
 fromBool :: Boolean b => Bool -> b
@@ -67,7 +100,7 @@ instance Boolean Bool where
   True  --> False = False
   False --> _     = True
   (<-->) = (==)
-  
+
 instance Boolean Any where
   true                  = Any True
   false                 = Any False
@@ -77,7 +110,7 @@ instance Boolean Any where
   (Any p) `xor` (Any q) = Any (p `xor` q)
   (Any p) --> (Any q)   = Any (p --> q)
   (Any p) <--> (Any q)  = Any (p <--> q)
-  
+
 instance Boolean All where
   true                  = All True
   false                 = All False
@@ -87,7 +120,7 @@ instance Boolean All where
   (All p) `xor` (All q) = All (p `xor` q)
   (All p) --> (All q)   = All (p --> q)
   (All p) <--> (All q)  = All (p <--> q)
-  
+
 instance Boolean (Dual Bool) where
   true                    = Dual True
   false                   = Dual False
@@ -97,7 +130,7 @@ instance Boolean (Dual Bool) where
   (Dual p) `xor` (Dual q) = Dual (p `xor` q)
   (Dual p) --> (Dual q)   = Dual (p --> q)
   (Dual p) <--> (Dual q)  = Dual (p <--> q)
-  
+
 instance Boolean (Endo Bool) where
   true                    = Endo (const True)
   false                   = Endo (const False)
@@ -107,7 +140,7 @@ instance Boolean (Endo Bool) where
   (Endo p) `xor` (Endo q) = Endo (\a -> p a `xor` q a)
   (Endo p) --> (Endo q)   = Endo (\a -> p a --> q a)
   (Endo p) <--> (Endo q)  = Endo (\a -> p a <--> q a)
-  
+
 instance (Boolean x, Boolean y) => Boolean (x, y) where
   true                = (true, true)
   false               = (false, false)
@@ -120,23 +153,22 @@ instance (Boolean x, Boolean y) => Boolean (x, y) where
 
 -- |A newtype wrapper that derives a 'Boolean' instance from any type that is both
 -- a 'Bits' instance and a 'Num' instance,
--- such that boolean logic operations on the 'Bitwise' wrapper correspond to 
+-- such that boolean logic operations on the 'Bitwise' wrapper correspond to
 -- bitwise logic operations on the inner type. It should be noted that 'false' is
 -- defined as 'Bitwise' 0 and 'true' is defined as 'not' 'false'.
--- 
--- In addition, a number of other classes are automatically derived from the inner 
--- type. These classes were chosen on the basis that many other 'Bits' 
+--
+-- In addition, a number of other classes are automatically derived from the inner
+-- type. These classes were chosen on the basis that many other 'Bits'
 -- instances defined in base are also instances of these classes.
-newtype Bitwise a = Bitwise {getBits :: a} 
+newtype Bitwise a = Bitwise {getBits :: a}
                   deriving (Num, Bits, Eq, Ord, Bounded, Enum, Show, Read, Real,
                             Integral, Typeable, Data, Ix, Storable, PrintfArg)
 
 instance (Num a, Bits a) => Boolean (Bitwise a) where
-  true   = not false 
-  false  = Bitwise 0 
+  true   = not false
+  false  = Bitwise 0
   not    = Bitwise . complement . getBits
   (&&)   = (Bitwise .) . (.&.) `on` getBits
   (||)   = (Bitwise .) . (.|.) `on` getBits
   xor    = (Bitwise .) . (Bits.xor `on` getBits)
   (<-->) = xor `on` not
-
