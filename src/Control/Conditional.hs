@@ -194,12 +194,12 @@ guard p = if' p (return ()) mzero
 {-# INLINE guard #-}
 
 -- |Generalization of 'Control.Monad.when'
-when :: (ToBool bool, MonadPlus m) => bool -> m () -> m ()
+when :: (ToBool bool, Monad m) => bool -> m () -> m ()
 when p m = if' p m (return ())
 {-# INLINE when #-}
 
 -- |Generalization of 'Control.Monad.unless'
-unless :: (Boolean bool, ToBool bool, MonadPlus m) => bool -> m() -> m()
+unless :: (Boolean bool, ToBool bool, Monad m) => bool -> m() -> m()
 unless p m = if' (not p) m (return ())
 {-# INLINE unless #-}
 
