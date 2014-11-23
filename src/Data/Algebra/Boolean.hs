@@ -72,8 +72,8 @@ class Boolean b where
   true      = not false
   false     = not true
   not       = (<--> false)
-  x && y    = not (x || y)
-  x || y    = not (x && y)
+  x && y = not (not x || not y)
+  x || y = not (not x && not y)
   x `xor` y = (x || y) && (not (x && y))
   x --> y   = not x || y
   x <--> y  = (x && y) || not (x || y)
