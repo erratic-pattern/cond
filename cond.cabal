@@ -1,3 +1,4 @@
+Cabal-Version: >= 1.10
 Name: cond
 Version: 0.4.1.1
 Synopsis: Basic conditional and boolean operators with monadic variants.
@@ -7,7 +8,6 @@ License-File: LICENSE
 Author: Adam Curtis
 Maintainer: acurtis@spsu.edu
 Homepage: https://github.com/kallisti-dev/cond
-Cabal-Version: >= 1.6
 Build-Type: Simple
 Description:
   This library provides:
@@ -47,7 +47,7 @@ Extra-source-files:
  
 source-repository head
   type: git
-  location: git://github.com/kallisti-dev/cond.git 
+  location: https://github.com/kallisti-dev/cond.git
 
 library
   hs-source-dirs: src
@@ -55,3 +55,4 @@ library
   exposed-modules: Control.Conditional
                    Data.Algebra.Boolean
   build-depends: base >= 3 && < 5
+  default-language: Haskell2010
