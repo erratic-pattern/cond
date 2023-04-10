@@ -141,6 +141,18 @@ instance Boolean (Endo Bool) where
   (Endo p) --> (Endo q)   = Endo (\a -> p a --> q a)
   (Endo p) <--> (Endo q)  = Endo (\a -> p a <--> q a)
 
+-- | Pointwise boolean algebra.
+--
+instance Boolean b => Boolean (a -> b) where
+  true      = const true
+  false     = const false
+  not p     = not . p
+  p && q    = \a -> p a && q a
+  p || q    = \a -> p a || q a
+  p `xor` q = \a -> p a `xor` q a
+  p --> q   = \a -> p a --> q a
+  p <--> q  = \a -> p a <--> q a
+
 instance (Boolean x, Boolean y) => Boolean (x, y) where
   true                = (true, true)
   false               = (false, false)

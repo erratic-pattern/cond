@@ -1,6 +1,6 @@
 Cabal-Version: >= 1.10
 Name: cond
-Version: 0.4.1.1
+Version: 0.4.2
 Synopsis: Basic conditional and boolean operators with monadic variants.
 Category: Control, Logic, Monad
 License: BSD3
@@ -44,7 +44,8 @@ tested-with:
 
 Extra-source-files:
   README.md
- 
+  CHANGELOG.md
+
 source-repository head
   type: git
   location: https://github.com/kallisti-dev/cond.git
