@@ -11,7 +11,6 @@ import Data.Function (on)
 import Data.Typeable
 import Data.Data
 import Data.Ix
-import Data.Foldable (Foldable)
 import qualified Data.Foldable as F
 import Foreign.Storable
 import Text.Printf
