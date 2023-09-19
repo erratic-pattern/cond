@@ -1,5 +1,10 @@
-{-# LANGUAGE FlexibleInstances, GeneralizedNewtypeDeriving,
-             DeriveDataTypeable
+{-# LANGUAGE
+      FlexibleInstances,
+      GeneralizedNewtypeDeriving,
+      DeriveDataTypeable,
+      StandaloneDeriving,
+      DerivingStrategies,
+      DerivingVia
   #-}
 module Data.Algebra.Boolean
        ( Boolean(..), fromBool, Bitwise(..)
@@ -8,6 +13,7 @@ import Data.Monoid (Any(..), All(..), Dual(..), Endo(..))
 import Data.Bits (Bits, complement, (.|.), (.&.))
 import qualified Data.Bits as Bits
 import Data.Function (on)
+import Data.Ord (Down(..))
 import Data.Typeable
 import Data.Data
 import Data.Ix
@@ -83,7 +89,6 @@ class Boolean b where
   any p     = F.foldl' f false
     where f a b = a || p b
 
-
 -- |Injection from 'Bool' into a boolean algebra.
 fromBool :: Boolean b => Bool -> b
 fromBool b = if b then true else false
@@ -128,6 +133,17 @@ instance Boolean (Dual Bool) where
   (Dual p) `xor` (Dual q) = Dual (p `xor` q)
   (Dual p) --> (Dual q)   = Dual (p --> q)
   (Dual p) <--> (Dual q)  = Dual (p <--> q)
+
+-- | Opposite boolean algebra: exchanges true and false, and `and` and
+-- `or`, etc
+instance Boolean a => Boolean (Down a) where
+  true = Down false
+  false = Down true
+  not = Down . not . getDown
+  (&&) = (Down .) . (||) `on` getDown
+  (||) = (Down .) . (&&) `on` getDown
+  xor = (Down .) . (<-->) `on` getDown
+  (<-->) = (Down .) . xor `on` getDown
 
 -- | Pointwise boolean algebra.
 --
