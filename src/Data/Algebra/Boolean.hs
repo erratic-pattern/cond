@@ -151,6 +151,16 @@ instance Boolean a => Boolean (Endo a) where
   (Endo p) --> (Endo q)   = Endo (\a -> p a --> q a)
   (Endo p) <--> (Endo q)  = Endo (\a -> p a <--> q a)
 
+-- |The trivial boolean algebra
+instance Boolean () where
+  true = ()
+  false = ()
+  not _ = ()
+  _ && _ = ()
+  _ || _ = ()
+  _ --> _ = ()
+  _ <--> _ = ()
+
 instance (Boolean x, Boolean y) => Boolean (x, y) where
   true                = (true, true)
   false               = (false, false)
