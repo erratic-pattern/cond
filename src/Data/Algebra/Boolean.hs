@@ -129,16 +129,6 @@ instance Boolean (Dual Bool) where
   (Dual p) --> (Dual q)   = Dual (p --> q)
   (Dual p) <--> (Dual q)  = Dual (p <--> q)
 
-instance Boolean (Endo Bool) where
-  true                    = Endo (const True)
-  false                   = Endo (const False)
-  not (Endo p)            = Endo (not . p)
-  (Endo p) && (Endo q)    = Endo (\a -> p a && q a)
-  (Endo p) || (Endo q)    = Endo (\a -> p a || q a)
-  (Endo p) `xor` (Endo q) = Endo (\a -> p a `xor` q a)
-  (Endo p) --> (Endo q)   = Endo (\a -> p a --> q a)
-  (Endo p) <--> (Endo q)  = Endo (\a -> p a <--> q a)
-
 -- | Pointwise boolean algebra.
 --
 instance Boolean b => Boolean (a -> b) where
@@ -150,6 +140,16 @@ instance Boolean b => Boolean (a -> b) where
   p `xor` q = \a -> p a `xor` q a
   p --> q   = \a -> p a --> q a
   p <--> q  = \a -> p a <--> q a
+
+instance Boolean a => Boolean (Endo a) where
+  true                    = Endo (const true)
+  false                   = Endo (const false)
+  not (Endo p)            = Endo (not . p)
+  (Endo p) && (Endo q)    = Endo (\a -> p a && q a)
+  (Endo p) || (Endo q)    = Endo (\a -> p a || q a)
+  (Endo p) `xor` (Endo q) = Endo (\a -> p a `xor` q a)
+  (Endo p) --> (Endo q)   = Endo (\a -> p a --> q a)
+  (Endo p) <--> (Endo q)  = Endo (\a -> p a <--> q a)
 
 instance (Boolean x, Boolean y) => Boolean (x, y) where
   true                = (true, true)
