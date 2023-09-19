@@ -182,4 +182,4 @@ instance (Num a, Bits a) => Boolean (Bitwise a) where
   (&&)   = (Bitwise .) . (.&.) `on` getBits
   (||)   = (Bitwise .) . (.|.) `on` getBits
   xor    = (Bitwise .) . (Bits.xor `on` getBits)
-  (<-->) = xor `on` not
+  (<-->) = (not .) . xor
