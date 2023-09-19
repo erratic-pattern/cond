@@ -33,7 +33,7 @@ class Boolean b where
   false   :: b
   -- |Logical negation.
   not     :: b -> b
-  -- |Logical conjunction. (infxr 3)
+  -- |Logical conjunction. (infixr 3)
   (&&)    :: b -> b -> b
   -- |Logical inclusive disjunction. (infixr 2)
   (||)    :: b -> b -> b
