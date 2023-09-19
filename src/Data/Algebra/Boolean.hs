@@ -95,9 +95,8 @@ instance Boolean Bool where
   (||) = (P.||)
   not = P.not
   xor = (/=)
-  True  --> True  = True
-  True  --> False = False
-  False --> _     = True
+  True  --> a = a
+  False --> _ = True
   (<-->) = (==)
 
 instance Boolean Any where
