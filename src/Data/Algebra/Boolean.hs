@@ -61,17 +61,17 @@ class Boolean b where
   nand :: Foldable t => t b -> b
   nand = not . and
 
-  -- | The logical conjunction of the mapping of a function over several values.
-  all :: Foldable t => (a -> b) -> t a -> b
-
-  -- | The logical disjunction of the mapping of a function over several values.
-  any :: Foldable t => (a -> b) -> t a -> b
-
   -- | The negated logical disjunction of several values.
   --
   -- @'nor' = 'not' . 'or'@
   nor :: Foldable t => t b -> b
   nor = not . or
+
+  -- | The logical conjunction of the mapping of a function over several values.
+  all :: Foldable t => (a -> b) -> t a -> b
+
+  -- | The logical disjunction of the mapping of a function over several values.
+  any :: Foldable t => (a -> b) -> t a -> b
 
   {-# MINIMAL (false | true), (not | ((<-->), false)), ((||) | (&&)) #-}
 
