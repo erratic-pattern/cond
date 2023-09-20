@@ -189,6 +189,17 @@ instance (Boolean x, Boolean y) => Boolean (x, y) where
   (a, b) --> (c, d)   = (a --> c, b --> d)
   (a, b) <--> (c, d)  = (a <--> c, b <--> d)
 
+instance (Boolean x, Boolean y, Boolean z) => Boolean (x, y, z) where
+  true                      = (true, true, true)
+  false                     = (false, false, false)
+  not (a, b, c)             = (not a, not b, not c)
+  (a, b, c) && (d, e, f)    = (a && d, b && e, c && f)
+  (a, b, c) || (d, e, f)    = (a || d, b || e, c || f)
+  (a, b, c) `xor` (d, e, f) = (a `xor` d, b `xor` e, c `xor` f)
+  (a, b, c) --> (d, e, f)   = (a --> d, b --> e, c --> f)
+  (a, b, c) <--> (d, e, f)  = (a <--> d, b <--> e, c <--> f)
+
+
 -- |A newtype wrapper that derives a 'Boolean' instance from any type that is both
 -- a 'Bits' instance and a 'Num' instance,
 -- such that boolean logic operations on the 'Bitwise' wrapper correspond to
