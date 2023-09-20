@@ -35,7 +35,7 @@ infixr  2 ||
 infixr  3 &&
 
 -- |A class for boolean algebras. Instances of this class are expected to obey
--- all the laws of boolean algebra.
+-- all the laws of [boolean algebra](https://en.wikipedia.org/wiki/Boolean_algebra_(structure)).
 --
 -- Minimal complete definition: 'true' or 'false', 'not' or ('<-->', 'false'), '||' or '&&'.
 class Boolean b where
