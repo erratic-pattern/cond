@@ -30,7 +30,7 @@ infixr  3 &&
 -- |A class for boolean algebras. Instances of this class are expected to obey
 -- all the laws of boolean algebra.
 --
--- Minimal complete definition: 'true' or 'false', 'not' or '<-->', '||' or '&&'.
+-- Minimal complete definition: 'true' or 'false', 'not' or ('<-->', 'false'), '||' or '&&'.
 class Boolean b where
   -- |Truth value, defined as the top of the bounded lattice
   true    :: b
@@ -73,12 +73,14 @@ class Boolean b where
   nor :: Foldable t => t b -> b
   nor = not . or
 
+  {-# MINIMAL (false | true), (not | ((<-->), false)), ((||) | (&&)) #-}
+
   -- Default implementations
   true      = not false
   false     = not true
   not       = (<--> false)
-  x && y = not (not x || not y)
-  x || y = not (not x && not y)
+  x && y    = not (not x || not y)
+  x || y    = not (not x && not y)
   x `xor` y = (x || y) && (not (x && y))
   x --> y   = not x || y
   x <--> y  = (x && y) || not (x || y)
