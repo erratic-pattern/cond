@@ -15,11 +15,16 @@ module Data.Algebra.Boolean(
   nor,
   any,
   all,
+  AnyB(..),
+  AllB(..),
+  XorB(..),
+  EquivB(..),
   ) where
 import Data.Monoid (Any(..), All(..), Dual(..), Endo(..))
 import Data.Bits (Bits, complement, (.|.), (.&.))
 import qualified Data.Bits as Bits
 import Data.Function (on)
+import Data.Semigroup (stimes, stimesIdempotentMonoid)
 import Data.Ord (Down(..))
 import Data.Typeable
 import Data.Data
@@ -98,6 +103,63 @@ all p = F.foldl' f true
 any :: (Boolean b, Foldable t) => (a -> b) -> t a -> b
 any p     = F.foldl' f false
   where f a b = a || p b
+
+
+-- | A boolean algebra regarded as a monoid under disjunction
+newtype AnyB b = AnyB {
+  getAnyB :: b
+} deriving (Eq, Ord, Show)
+
+instance Boolean b => Semigroup (AnyB b) where
+  AnyB x <> AnyB y = AnyB (x || y)
+  stimes = stimesIdempotentMonoid
+
+instance Boolean b => Monoid (AnyB b) where
+  mempty = AnyB false
+
+
+-- | A boolean algebra regarded as a monoid under conjunction
+newtype AllB b = AllB {
+  getAllB :: b
+} deriving (Eq, Ord, Show)
+
+instance Boolean b => Semigroup (AllB b) where
+  AllB x <> AllB y = AllB (x && y)
+  stimes = stimesIdempotentMonoid
+
+instance Boolean b => Monoid (AllB b) where
+  mempty = AllB true
+
+
+stimesPeriod2 :: (Monoid a, Integral n) => n -> a -> a
+stimesPeriod2 n x = case n `mod` 2 of
+  1 -> x
+  _ -> mempty
+
+-- | A boolean algebra regarded as a monoid under exclusive or
+newtype XorB b = XorB {
+  getXorB :: b
+} deriving (Eq, Ord, Show)
+
+instance Boolean b => Semigroup (XorB b) where
+  XorB x <> XorB y = XorB (x `xor` y)
+  stimes = stimesPeriod2
+
+instance Boolean b => Monoid (XorB b) where
+  mempty = XorB false
+
+
+-- | A boolean algebra regarded as a monoid under equivalence
+newtype EquivB b = EquivB {
+  getEquivB :: b
+}  deriving (Eq, Ord, Show)
+
+instance Boolean b => Semigroup (EquivB b) where
+  EquivB x <> EquivB y = EquivB (x <--> y)
+  stimes = stimesPeriod2
+
+instance Boolean b => Monoid (EquivB b) where
+  mempty = EquivB true
 
 
 -- |Injection from 'Bool' into a boolean algebra.
