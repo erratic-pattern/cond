@@ -44,8 +44,9 @@ module Control.Conditional
 import Data.Algebra.Boolean
 import Control.Monad hiding (guard, when, unless)
 import Control.Category 
-import Data.Monoid
 import Data.Maybe
+import Data.Monoid
+import Data.Ord (Down(..))
 import Prelude hiding ((.), id, (&&), (||), not)
 
 infixr  0 <|, |>, ⊳, ⊲, ?, <<|, |>>
@@ -65,10 +66,27 @@ infixr  9 ?.
 class ToBool bool where
   toBool :: bool -> Bool
 
-instance ToBool Bool where toBool = id
-instance ToBool Any  where toBool = getAny
-instance ToBool All  where toBool = getAll
-instance ToBool (Dual Bool) where toBool = getDual
+instance ToBool Bool where
+  toBool = id
+
+instance ToBool Any  where
+  toBool = getAny
+  
+instance ToBool All  where
+  toBool = getAll
+
+instance ToBool a => ToBool (Dual a) where
+  toBool = toBool . getDual
+
+instance ToBool a => ToBool (AnyB a) where
+  toBool = toBool . getAnyB
+
+instance ToBool a => ToBool (AllB a) where
+  toBool = toBool . getAllB
+
+instance ToBool a => ToBool (Down a) where
+  toBool = not . toBool . getDown
+
 
 -- |A simple conditional operator
 if' :: ToBool bool => bool -> a -> a -> a
